@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Noticias</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .news-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .category-filter {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .category-filter:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .category-filter.active {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .news-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .news-description {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      flex-grow: 1;
+    }
+
+    .news-benefits {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .benefits-title {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .benefits-list li {
+      padding: 5px 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .benefits-list li:before {
+      content: "✓ ";
+      color: #27ae60;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .news-tips {
+      background: #e8f5e8;
+      border-radius: 10px;
+      padding: 15px;
+      border-left: 4px solid #27ae60;
+    }
+
+    .tips-title {
+      font-weight: bold;
+      color: #27ae60;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    .tips-content {
+      color: #2c5530;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .news-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #999;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .category-news { border-left: 4px solid #3498db; }
+    .category-recetas { border-left: 4px solid #e74c3c; }
+    .category-manualidades { border-left: 4px solid #f39c12; }
+    .category-musica { border-left: 4px solid #9b59b6; }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="min-h-full"><!-- Back Button --> <a href="index.html" class="back-button">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+    </svg> Regresar al Inicio </a>
+   <div class="container mx-auto px-6 py-8"><!-- Header -->
+    <header class="text-center mb-12">
+     <h1 id="site-title" class="text-5xl font-bold text-white mb-4">📰 Portal de Noticias y Contenido</h1>
+     <p id="welcome-message" class="text-xl text-white opacity-90">Descubre contenido interesante y útil para tu día a día</p>
+    </header><!-- Category Filters -->
+    <div class="flex flex-wrap justify-center gap-4 mb-12"><button class="category-filter active" data-category="all" id="all-button"> <span id="all-button-text">Mostrar Todas</span> </button> <button class="category-filter" data-category="news"> 📰 Noticias </button> <button class="category-filter" data-category="recetas"> 🍳 Recetas </button> <button class="category-filter" data-category="manualidades"> ✂️ Manualidades </button> <button class="category-filter" data-category="musica"> 🎵 Música </button>
+    </div><!-- News Grid -->
+    <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"><!-- Las noticias se generarán dinámicamente -->
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      site_title: "📰 Portal de Noticias y Contenido",
+      welcome_message: "Descubre contenido interesante y útil para tu día a día",
+      all_button_text: "Mostrar Todas",
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#333333",
+      accent_color: "#3498db",
+      secondary_color: "#e74c3c",
+      font_family: "Segoe UI",
+      font_size: 16
+    };
+
+    const newsData = [
+      // Noticias
+      {
+        id: 1,
+        category: 'news',
+        icon: '🏙️',
+        title: 'Zonas urbanas más hermosas — Zonas tranquilas y naturales',
+        description: 'Descubre los rincones urbanos que combinan perfectamente la modernidad con espacios verdes, creando oasis de tranquilidad en medio de la ciudad.',
+        benefits: [
+          'Mejora la calidad de vida urbana',
+          'Reduce el estrés y la ansiedad',
+          'Fomenta la actividad física al aire libre',
+          'Aumenta el valor de las propiedades cercanas'
+        ],
+        tips: 'Visita estos espacios durante las primeras horas de la mañana o al atardecer para disfrutar de la mejor iluminación y menor cantidad de personas.'
+      },
+      {
+        id: 2,
+        category: 'news',
+        icon: '🐕',
+        title: 'Las mejores mascotas de compañía — Compañeros ideales para todos',
+        description: 'Conoce las mascotas más adecuadas según tu estilo de vida, espacio disponible y necesidades de compañía. Desde perros tranquilos hasta gatos independientes.',
+        benefits: [
+          'Compañía constante y afecto incondicional',
+          'Reducción del estrés y la soledad',
+          'Fomenta la responsabilidad y rutina',
+          'Mejora la salud mental y emocional'
+        ],
+        tips: 'Considera tu tiempo disponible, espacio en casa y presupuesto antes de elegir una mascota. Las mascotas mayores suelen ser más tranquilas y requieren menos entrenamiento.'
+      },
+      {
+        id: 3,
+        category: 'news',
+        icon: '🏊‍♀️',
+        title: 'Piscinas recreativas — Espacios seguros para relajarse',
+        description: 'Explora las mejores piscinas recreativas que ofrecen un ambiente seguro y relajante, perfectas para ejercitarse suavemente o simplemente disfrutar del agua.',
+        benefits: [
+          'Ejercicio de bajo impacto para articulaciones',
+          'Relajación muscular y mental',
+          'Socialización en ambiente seguro',
+          'Actividad refrescante en días calurosos'
+        ],
+        tips: 'Busca piscinas con horarios específicos para adultos mayores, donde el ambiente es más tranquilo y hay instructores especializados en ejercicios acuáticos.'
+      },
+      {
+        id: 4,
+        category: 'news',
+        icon: '🏖️',
+        title: 'Playas tranquilas para vacacionar — Disfruta sin aglomeraciones',
+        description: 'Descubre destinos costeros menos conocidos pero igualmente hermosos, donde puedes relajarte sin las multitudes típicas de las playas más populares.',
+        benefits: [
+          'Ambiente relajado y silencioso',
+          'Precios más accesibles',
+          'Contacto genuino con la naturaleza',
+          'Servicios más personalizados'
+        ],
+        tips: 'Viaja en temporada media (primavera u otoño) para encontrar el clima perfecto y aún menos gente. Pregunta a los locales por las playas que frecuentan.'
+      },
+      {
+        id: 5,
+        category: 'news',
+        icon: '💰',
+        title: 'Ofertas especiales — Descuentos para adultos mayores',
+        description: 'Aprovecha los descuentos y beneficios especiales disponibles para adultos mayores en restaurantes, transporte, entretenimiento y servicios diversos.',
+        benefits: [
+          'Ahorro significativo en gastos cotidianos',
+          'Acceso a servicios premium a menor costo',
+          'Programas de fidelidad exclusivos',
+          'Horarios preferenciales en algunos servicios'
+        ],
+        tips: 'Siempre pregunta por descuentos para adultos mayores, muchos lugares los ofrecen pero no los publicitan. Lleva siempre tu identificación para comprobar la edad.'
+      },
+
+      // Recetas
+      {
+        id: 6,
+        category: 'recetas',
+        icon: '🍰',
+        title: 'Postres saludables para diabéticos — Sin azúcar, llenos de sabor',
+        description: 'Deliciosas recetas de postres que cuidan tu salud sin sacrificar el sabor. Utilizamos endulzantes naturales y ingredientes nutritivos.',
+        benefits: [
+          'Control de niveles de glucosa en sangre',
+          'Satisface el antojo de dulce de forma saludable',
+          'Ingredientes ricos en fibra y nutrientes',
+          'Fáciles de preparar en casa'
+        ],
+        tips: 'Usa stevia, eritritol o fruta fresca como endulzantes. La canela y la vainilla natural intensifican el sabor dulce sin agregar azúcar.'
+      },
+      {
+        id: 7,
+        category: 'recetas',
+        icon: '🎂',
+        title: 'Pasteles caseros fáciles — Suaves y deliciosos',
+        description: 'Recetas tradicionales de pasteles que puedes hacer en casa con ingredientes simples. Perfectos para compartir en familia o regalar a seres queridos.',
+        benefits: [
+          'Ingredientes naturales y frescos',
+          'Control total sobre los componentes',
+          'Actividad relajante y creativa',
+          'Resultado más económico que comprar'
+        ],
+        tips: 'Todos los ingredientes deben estar a temperatura ambiente antes de mezclar. Precalienta el horno y no abras la puerta durante los primeros 20 minutos de cocción.'
+      },
+      {
+        id: 8,
+        category: 'recetas',
+        icon: '🍪',
+        title: 'Galletas caseras tradicionales — Perfectas para la tarde',
+        description: 'Recetas clásicas de galletas que han pasado de generación en generación. Ideales para acompañar el té o café de la tarde.',
+        benefits: [
+          'Recetas familiares con historia',
+          'Perfectas para compartir momentos',
+          'Se conservan bien por varios días',
+          'Ingredientes simples y accesibles'
+        ],
+        tips: 'Enfría la masa en el refrigerador antes de hornear para que mantengan mejor su forma. Usa papel pergamino para evitar que se peguen.'
+      },
+      {
+        id: 9,
+        category: 'recetas',
+        icon: '🥤',
+        title: 'Bebidas refrescantes sin azúcar — Saludables y naturales',
+        description: 'Refrescantes bebidas naturales sin azúcar añadida, perfectas para mantenerse hidratado y disfrutar de sabores deliciosos y saludables.',
+        benefits: [
+          'Hidratación saludable y sabrosa',
+          'Rica en vitaminas y antioxidantes',
+          'Ayuda a controlar el peso',
+          'Alternativa natural a bebidas procesadas'
+        ],
+        tips: 'Usa frutas de temporada para mejor sabor y precio. Agrega hierbas frescas como menta o albahaca para un toque especial.'
+      },
+      {
+        id: 10,
+        category: 'recetas',
+        icon: '🍕',
+        title: 'Pizza casera ligera — Hecha con masa integral',
+        description: 'Receta de pizza saludable con masa integral y ingredientes frescos. Una versión más nutritiva del clásico favorito de todos.',
+        benefits: [
+          'Mayor contenido de fibra y nutrientes',
+          'Control de ingredientes y sodio',
+          'Más económica que pizza comercial',
+          'Actividad divertida para hacer en familia'
+        ],
+        tips: 'Deja reposar la masa al menos 1 hora para mejor textura. Usa vegetales frescos y queso con moderación para una pizza más saludable.'
+      },
+
+      // Manualidades
+      {
+        id: 11,
+        category: 'manualidades',
+        icon: '🌸',
+        title: 'Flores de papel reciclado — Decorativas y ecológicas',
+        description: 'Crea hermosas flores utilizando papel reciclado. Una actividad relajante que embellece tu hogar mientras cuidas el medio ambiente.',
+        benefits: [
+          'Actividad relajante y meditativa',
+          'Reutiliza materiales que tienes en casa',
+          'Decoración duradera y personalizada',
+          'Estimula la creatividad y motricidad fina'
+        ],
+        tips: 'Usa revistas viejas, periódicos o papel de regalo usado. Varía los colores y tamaños para crear arreglos más interesantes y naturales.'
+      },
+      {
+        id: 12,
+        category: 'manualidades',
+        icon: '🖼️',
+        title: 'Portarretratos con cartón — Hechos a mano con cariño',
+        description: 'Diseña portarretratos únicos usando cartón reciclado. Perfectos para mostrar fotos familiares o regalar a seres queridos.',
+        benefits: [
+          'Marcos personalizados y únicos',
+          'Proyecto económico y accesible',
+          'Regalo significativo hecho a mano',
+          'Actividad que ejercita la creatividad'
+        ],
+        tips: 'Usa cartón grueso para mayor durabilidad. Decora con telas, botones, o pintura acrílica para darle tu toque personal.'
+      },
+      {
+        id: 13,
+        category: 'manualidades',
+        icon: '🪴',
+        title: 'Macetas decoradas — Arte y jardinería',
+        description: 'Transforma macetas simples en obras de arte. Combina tu amor por las plantas con la creatividad artística.',
+        benefits: [
+          'Embellece tu jardín o interior',
+          'Actividad terapéutica y relajante',
+          'Combina arte con jardinería',
+          'Proyecto de bajo costo y alto impacto'
+        ],
+        tips: 'Usa pintura acrílica resistente al agua. Aplica una capa de sellador transparente para proteger tu diseño de la intemperie.'
+      },
+      {
+        id: 14,
+        category: 'manualidades',
+        icon: '🕯️',
+        title: 'Velas aromáticas — Hechas con aromas naturales',
+        description: 'Aprende a hacer velas aromáticas caseras usando cera natural y aceites esenciales. Crea ambientes relajantes en tu hogar.',
+        benefits: [
+          'Aromaterapia natural en casa',
+          'Control de ingredientes y fragancias',
+          'Actividad relajante y creativa',
+          'Regalo personalizado y especial'
+        ],
+        tips: 'Usa cera de soja o abeja para velas más naturales. Agrega aceites esenciales cuando la cera esté tibia, no caliente, para preservar las propiedades aromáticas.'
+      },
+      {
+        id: 15,
+        category: 'manualidades',
+        icon: '🎄',
+        title: 'Adornos navideños reciclados — Reutiliza con creatividad',
+        description: 'Crea hermosos adornos navideños usando materiales reciclados. Dale una segunda vida a objetos cotidianos con creatividad festiva.',
+        benefits: [
+          'Decoración navideña económica',
+          'Reduce residuos y cuida el ambiente',
+          'Tradición familiar creativa',
+          'Adornos únicos y personalizados'
+        ],
+        tips: 'Guarda materiales durante el año: frascos, tapas, cartón, telas. Involucra a toda la familia para crear tradiciones especiales.'
+      },
+
+      // Música
+      {
+        id: 16,
+        category: 'musica',
+        icon: '🎼',
+        title: 'Melodías para relajarse — Instrumentales suaves',
+        description: 'Descubre una selección de música instrumental suave, perfecta para momentos de relajación, meditación o simplemente descansar.',
+        benefits: [
+          'Reduce el estrés y la ansiedad',
+          'Mejora la concentración',
+          'Facilita la relajación profunda',
+          'Ayuda a conciliar el sueño'
+        ],
+        tips: 'Escucha con auriculares para una experiencia más inmersiva. Crea una playlist de 30-60 minutos para sesiones de relajación completas.'
+      },
+      {
+        id: 17,
+        category: 'musica',
+        icon: '🎵',
+        title: 'Clásicos de todos los tiempos — Nostalgia musical',
+        description: 'Revive los grandes éxitos musicales que marcaron épocas. Canciones que despiertan recuerdos y emociones especiales.',
+        benefits: [
+          'Estimula la memoria y recuerdos positivos',
+          'Conecta con diferentes generaciones',
+          'Música de calidad probada en el tiempo',
+          'Evoca emociones y nostalgia agradable'
+        ],
+        tips: 'Comparte estas canciones con familiares más jóvenes para crear puentes generacionales. Cada canción tiene una historia que contar.'
+      },
+      {
+        id: 18,
+        category: 'musica',
+        icon: '🚶‍♀️',
+        title: 'Música para caminar — Ritmos suaves',
+        description: 'Playlist especialmente diseñada para acompañar tus caminatas diarias. Ritmos que motivan sin ser agresivos.',
+        benefits: [
+          'Motiva a mantener el ritmo de caminata',
+          'Hace más placentero el ejercicio',
+          'Ritmo adecuado para adultos mayores',
+          'Mejora el estado de ánimo durante la actividad'
+        ],
+        tips: 'Busca música con 120-140 BPM (beats por minuto) para un ritmo de caminata cómodo. Varía los géneros para mantener el interés.'
+      },
+      {
+        id: 19,
+        category: 'musica',
+        icon: '😊',
+        title: 'Canciones que alegran el día — Energía positiva',
+        description: 'Música alegre y optimista que levanta el ánimo y llena de energía positiva. Perfecta para comenzar el día con buen humor.',
+        benefits: [
+          'Mejora el estado de ánimo instantáneamente',
+          'Aporta energía y vitalidad',
+          'Combate sentimientos de tristeza',
+          'Crea ambiente positivo en el hogar'
+        ],
+        tips: 'Escucha estas canciones por las mañanas para empezar el día con energía positiva. La música alegre es contagiosa y mejora el ambiente familiar.'
+      },
+      {
+        id: 20,
+        category: 'musica',
+        icon: '🌿',
+        title: 'Sonidos de la naturaleza — Relajación total',
+        description: 'Sonidos naturales como lluvia, océano, bosque y aves. Perfectos para meditación, relajación profunda o como fondo relajante.',
+        benefits: [
+          'Relajación profunda y natural',
+          'Mejora la calidad del sueño',
+          'Reduce el ruido urbano estresante',
+          'Conecta con la naturaleza desde casa'
+        ],
+        tips: 'Úsalos como fondo mientras lees, meditas o realizas actividades tranquilas. Combina diferentes sonidos para crear tu ambiente ideal.'
+      }
+    ];
+
+    let currentFilter = 'all';
+
+    function renderNews() {
+      const newsGrid = document.getElementById('news-grid');
+      const filteredNews = currentFilter === 'all' ? newsData : newsData.filter(news => news.category === currentFilter);
+      
+      newsGrid.innerHTML = '';
+      
+      filteredNews.forEach(news => {
+        const newsCard = document.createElement('div');
+        newsCard.className = `news-card category-${news.category} fade-in`;
+        
+        newsCard.innerHTML = `
+          <div class="news-image">
+            ${news.icon}
+          </div>
+          <h3 class="news-title">${news.title}</h3>
+          <p class="news-description">${news.description}</p>
+          
+          <div class="news-benefits">
+            <div class="benefits-title">✨ Beneficios:</div>
+            <ul class="benefits-list">
+              ${news.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="news-tips">
+            <div class="tips-title">💡 Consejo útil:</div>
+            <div class="tips-content">${news.tips}</div>
+          </div>
+        `;
+        
+        newsGrid.appendChild(newsCard);
+      });
+    }
+
+    function setupFilters() {
+      const filterButtons = document.querySelectorAll('.category-filter');
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Add active class to clicked button
+          button.classList.add('active');
+          
+          // Update current filter
+          currentFilter = button.dataset.category;
+          
+          // Re-render news
+          renderNews();
+        });
+      });
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNews();
+      setupFilters();
+    });
+
+    // Element SDK initialization
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          const customFont = config.font_family || defaultConfig.font_family;
+          const baseSize = config.font_size || defaultConfig.font_size;
+          const baseFontStack = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+
+          // Update text content
+          document.getElementById('site-title').textContent = config.site_title || defaultConfig.site_title;
+          document.getElementById('welcome-message').textContent = config.welcome_message || defaultConfig.welcome_message;
+          document.getElementById('all-button-text').textContent = config.all_button_text || defaultConfig.all_button_text;
+
+          // Apply font styling
+          document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+          document.getElementById('site-title').style.fontSize = `${baseSize * 2.5}px`;
+          document.getElementById('welcome-message').style.fontSize = `${baseSize * 1.2}px`;
+
+          // Apply colors
+          document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, #764ba2 100%)`;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                window.elementSdk.config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                window.elementSdk.config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                window.elementSdk.config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => {
+                window.elementSdk.config.accent_color = value;
+                window.elementSdk.setConfig({ accent_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_color || defaultConfig.secondary_color,
+              set: (value) => {
+                window.elementSdk.config.secondary_color = value;
+                window.elementSdk.setConfig({ secondary_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              window.elementSdk.config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              window.elementSdk.config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["site_title", config.site_title || defaultConfig.site_title],
+          ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
+          ["all_button_text", config.all_button_text || defaultConfig.all_button_text]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a213c2a05112b3',t:'MTc2MjQwNTc1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

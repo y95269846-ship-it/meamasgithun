@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Active Mind - Bienvenido</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .brand-section {
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .welcome-text {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .forms-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            background: #f8fafc;
+            padding: 5px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #64748b;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #1e293b;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #ef4444;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .demo-notice {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+
+            .brand-section {
+                order: 1;
+            }
+
+            .forms-section {
+                order: 2;
+                padding: 25px;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main class="container">
+   <section class="brand-section">
+    <h1 class="logo" id="app-title">Active Mind</h1>
+    <p class="welcome-text" id="welcome-message">Bienvenido a tu espacio mental</p>
+   </section>
+   <section class="forms-section">
+    <div class="form-tabs"><button class="tab-button active" onclick="switchTab('login')">Iniciar Sesión</button> <button class="tab-button" onclick="switchTab('register')">Crear Cuenta</button>
+    </div>
+    <div class="success-message" id="success-message">
+     ✅ ¡Éxito! Redirigiendo a principal.html...
+    </div><!-- Formulario de Login -->
+    <div class="form-container active" id="login-form">
+     <h2 class="form-title" id="login-title">Iniciar Sesión</h2>
+     <form onsubmit="handleLogin(event)">
+      <div class="form-group"><label class="form-label" for="login-email">Correo Electrónico</label> <input type="email" id="login-email" class="form-input" placeholder="usuario@ejemplo.com" required>
+       <div class="error-message" id="login-email-error">
+        Por favor ingresa un correo válido
+       </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="login-phone">Teléfono (opcional)</label> <input type="tel" id="login-phone" class="form-input" placeholder="+1 234 567 8900">
+      </div>
+      <div class="form-group"><label class="form-label" for="login-password">Contraseña</label> <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+       <div class="error-message" id="login-password-error">
+        La contraseña es requerida
+       </div>
+      </div><button type="submit" class="submit-button">Iniciar Sesión</button>
+     </form>
+    </div><!-- Formulario de Registro -->
+    <div class="form-container" id="register-form">
+     <h2 class="form-title" id="register-title">Crear Cuenta</h2>
+     <form onsubmit="handleRegister(event)">
+      <div class="form-group"><label class="form-label" for="register-name">Nombre Completo</label> <input type="text" id="register-name" class="form-input" placeholder="Tu nombre completo" required>
+       <div class="error-message" id="register-name-error">
+        El nombre es requerido
+       </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="register-email">Correo Electrónico</label> <input type="email" id="register-email" class="form-input" placeholder="usuario@ejemplo.com" required>
+       <div class="error-message" id="register-email-error">
+        Por favor ingresa un correo válido con @
+       </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="register-phone">Teléfono</label> <input type="tel" id="register-phone" class="form-input" placeholder="+1 234 567 8900" required>
+       <div class="error-message" id="register-phone-error">
+        El teléfono es requerido
+       </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="register-password">Contraseña</label> <input type="password" id="register-password" class="form-input" placeholder="Mínimo 8 caracteres" required>
+       <div class="error-message" id="register-password-error">
+        La contraseña debe tener al menos 8 caracteres
+       </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="register-confirm">Confirmar Contraseña</label> <input type="password" id="register-confirm" class="form-input" placeholder="Repite tu contraseña" required>
+       <div class="error-message" id="register-confirm-error">
+        Las contraseñas no coinciden
+       </div>
+      </div><button type="submit" class="submit-button">Crear Cuenta</button>
+     </form>
+    </div>
+   </section>
+  </main>
+  <script>
+        // Configuración por defecto
+        const defaultConfig = {
+            app_title: "Active Mind",
+            welcome_message: "Bienvenido a tu espacio mental",
+            login_title: "Iniciar Sesión",
+            register_title: "Crear Cuenta"
+        };
+
+        // Función para cambiar entre pestañas
+        function switchTab(tab) {
+            // Actualizar botones de pestaña
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Mostrar formulario correspondiente
+            document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+            document.getElementById(tab + '-form').classList.add('active');
+
+            // Ocultar mensaje de éxito
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Validación de email con @
+        function validateEmail(email) {
+            return email.includes('@') && email.includes('.');
+        }
+
+        // Validación de contraseña (mínimo 8 caracteres)
+        function validatePassword(password) {
+            return password.length >= 8;
+        }
+
+        // Mostrar/ocultar errores
+        function showError(fieldId, show = true) {
+            const field = document.getElementById(fieldId);
+            const error = document.getElementById(fieldId + '-error');
+            
+            if (show) {
+                field.classList.add('error');
+                error.style.display = 'block';
+            } else {
+                field.classList.remove('error');
+                error.style.display = 'none';
+            }
+        }
+
+        // Manejar login (simulado)
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            let isValid = true;
+
+            // Validar email
+            if (!validateEmail(email)) {
+                showError('login-email');
+                isValid = false;
+            } else {
+                showError('login-email', false);
+            }
+
+            // Validar contraseña
+            if (!password) {
+                showError('login-password');
+                isValid = false;
+            } else {
+                showError('login-password', false);
+            }
+
+            if (isValid) {
+                // Simular éxito
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('login-form').style.display = 'none';
+                
+                // Redirección real a principal.html después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = 'principal.html';
+                }, 2000);
+            }
+        }
+
+        // Manejar registro (simulado)
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const phone = document.getElementById('register-phone').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            let isValid = true;
+
+            // Validar nombre
+            if (!name.trim()) {
+                showError('register-name');
+                isValid = false;
+            } else {
+                showError('register-name', false);
+            }
+
+            // Validar email con @
+            if (!validateEmail(email)) {
+                showError('register-email');
+                isValid = false;
+            } else {
+                showError('register-email', false);
+            }
+
+            // Validar teléfono
+            if (!phone.trim()) {
+                showError('register-phone');
+                isValid = false;
+            } else {
+                showError('register-phone', false);
+            }
+
+            // Validar contraseña (8+ caracteres)
+            if (!validatePassword(password)) {
+                showError('register-password');
+                isValid = false;
+            } else {
+                showError('register-password', false);
+            }
+
+            // Validar confirmación
+            if (password !== confirm) {
+                showError('register-confirm');
+                isValid = false;
+            } else {
+                showError('register-confirm', false);
+            }
+
+            if (isValid) {
+                // Simular éxito
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('register-form').style.display = 'none';
+                
+                // Simular redirección después de 2 segundos
+                setTimeout(() => {
+                    document.getElementById('success-message').innerHTML = 
+                        '🎉 ¡Cuenta creada! En una app real, ahora irías a principal.html';
+                }, 2000);
+            }
+        }
+
+        // Función para actualizar la UI basada en la configuración
+        async function onConfigChange(config) {
+            const appTitle = config.app_title || defaultConfig.app_title;
+            const welcomeMessage = config.welcome_message || defaultConfig.welcome_message;
+            const loginTitle = config.login_title || defaultConfig.login_title;
+            const registerTitle = config.register_title || defaultConfig.register_title;
+
+            document.getElementById('app-title').textContent = appTitle;
+            document.getElementById('welcome-message').textContent = welcomeMessage;
+            document.getElementById('login-title').textContent = loginTitle;
+            document.getElementById('register-title').textContent = registerTitle;
+        }
+
+        // Función para mapear capacidades
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        // Función para mapear valores del panel de edición
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["app_title", config.app_title || defaultConfig.app_title],
+                ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
+                ["login_title", config.login_title || defaultConfig.login_title],
+                ["register_title", config.register_title || defaultConfig.register_title]
+            ]);
+        }
+
+        // Inicializar el SDK cuando esté disponible
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                onConfigChange,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'999e6cf6003fe7ad',t:'MTc2MjM2NzQ2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
